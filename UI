@@ -5,38 +5,32 @@
 local AutonomousUI = {}
 AutonomousUI.__index = AutonomousUI
 
--- Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- Constants
 local THEME = {
-	Background     = Color3.fromRGB(30, 30, 33),
-	Surface        = Color3.fromRGB(38, 38, 42),
-	SurfaceLight   = Color3.fromRGB(48, 48, 54),
-	Border         = Color3.fromRGB(60, 60, 68),
-	Accent         = Color3.fromRGB(110, 110, 200),
-	AccentDim      = Color3.fromRGB(70, 70, 150),
-	TextPrimary    = Color3.fromRGB(230, 230, 235),
-	TextSecondary  = Color3.fromRGB(150, 150, 160),
-	TextMuted      = Color3.fromRGB(100, 100, 110),
-	Success        = Color3.fromRGB(80, 200, 120),
-	Warning        = Color3.fromRGB(220, 170, 60),
-	Error          = Color3.fromRGB(220, 80, 80),
-	Info           = Color3.fromRGB(80, 160, 220),
-	Transparent    = Color3.fromRGB(0, 0, 0),
+	Background    = Color3.fromRGB(30, 30, 33),
+	Surface       = Color3.fromRGB(38, 38, 42),
+	SurfaceLight  = Color3.fromRGB(48, 48, 54),
+	Border        = Color3.fromRGB(60, 60, 68),
+	Accent        = Color3.fromRGB(110, 110, 200),
+	AccentDim     = Color3.fromRGB(70, 70, 150),
+	TextPrimary   = Color3.fromRGB(230, 230, 235),
+	TextSecondary = Color3.fromRGB(150, 150, 160),
+	TextMuted     = Color3.fromRGB(100, 100, 110),
+	Success       = Color3.fromRGB(80, 200, 120),
+	Warning       = Color3.fromRGB(220, 170, 60),
+	Error         = Color3.fromRGB(220, 80, 80),
+	Info          = Color3.fromRGB(80, 160, 220),
 }
 
-local TWEEN_FAST   = TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-local TWEEN_MED    = TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-local TWEEN_SLOW   = TweenInfo.new(0.4,  Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+local TWEEN_FAST = TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+local TWEEN_MED  = TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 
--- Utility
 local function tween(obj, info, props)
 	TweenService:Create(obj, info, props):Play()
 end
@@ -69,14 +63,14 @@ end
 
 local function makeLabel(parent, text, size, color, xAlign)
 	local l = Instance.new("TextLabel")
-	l.Text              = text   or ""
-	l.TextSize          = size   or 13
-	l.TextColor3        = color  or THEME.TextPrimary
-	l.TextXAlignment    = xAlign or Enum.TextXAlignment.Left
-	l.Font              = Enum.Font.GothamMedium
+	l.Text           = text   or ""
+	l.TextSize       = size   or 13
+	l.TextColor3     = color  or THEME.TextPrimary
+	l.TextXAlignment = xAlign or Enum.TextXAlignment.Left
+	l.Font           = Enum.Font.GothamMedium
 	l.BackgroundTransparency = 1
-	l.Size              = UDim2.new(1, 0, 0, size and size + 4 or 17)
-	l.Parent            = parent
+	l.Size           = UDim2.new(1, 0, 0, size and size + 4 or 17)
+	l.Parent         = parent
 	return l
 end
 
@@ -93,17 +87,6 @@ local function makeButton(parent, text, size)
 	return b
 end
 
-local function makeSpacer(parent, height)
-	local f = Instance.new("Frame")
-	f.Size = UDim2.new(1, 0, 0, height or 6)
-	f.BackgroundTransparency = 1
-	f.Parent = parent
-	return f
-end
-
--- ─────────────────────────────────────────────────────────────
--- Dragging (works on both PC & Mobile)
--- ─────────────────────────────────────────────────────────────
 local function enableDrag(handle, frame)
 	local dragging, dragInput, startPos, startFramePos
 
@@ -152,104 +135,94 @@ function AutonomousUI.new(config)
 	config = config or {}
 
 	local self = setmetatable({}, AutonomousUI)
-	self._logs        = {}
-	self._messages    = {}
-	self._isOpen      = true
-	self._activeTab   = "Chat"
-	self._connections = {}
-	self._version     = "1.0.0"
+	self._logs      = {}
+	self._messages  = {}
+	self._isOpen    = true
+	self._activeTab = "Chat"
+	self._version   = "1.0.1"
 
-	-- ── ScreenGui ──────────────────────────────────────────────
+	-- ScreenGui
 	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name              = "AutonomousUI"
-	screenGui.ResetOnSpawn      = false
-	screenGui.ZIndexBehavior    = Enum.ZIndexBehavior.Sibling
-	screenGui.IgnoreGuiInset    = true
-	screenGui.DisplayOrder      = 999
-	screenGui.Parent            = PlayerGui
-	self._screenGui             = screenGui
+	screenGui.Name            = "AutonomousUI"
+	screenGui.ResetOnSpawn    = false
+	screenGui.ZIndexBehavior  = Enum.ZIndexBehavior.Sibling
+	screenGui.IgnoreGuiInset  = true
+	screenGui.DisplayOrder    = 999
+	screenGui.Parent          = PlayerGui
+	self._screenGui           = screenGui
 
-	-- ── Main Window ────────────────────────────────────────────
+	-- Main Window
 	local win = Instance.new("Frame")
-	win.Name              = "Window"
-	win.Size              = UDim2.new(0, 340, 0, 480)
-	win.Position          = UDim2.new(0.5, -170, 0.5, -240)
-	win.BackgroundColor3  = THEME.Background
-	win.BorderSizePixel   = 0
-	win.Parent            = screenGui
+	win.Name             = "Window"
+	win.Size             = UDim2.new(0, 340, 0, 480)
+	win.Position         = UDim2.new(0.5, -170, 0.5, -240)
+	win.BackgroundColor3 = THEME.Background
+	win.BorderSizePixel  = 0
+	win.Parent           = screenGui
 	makeCorner(win, 12)
 	makeStroke(win, THEME.Border, 1)
 	self._window = win
 
-	-- drop shadow
+	-- Drop shadow
 	local shadow = Instance.new("ImageLabel")
-	shadow.Name               = "Shadow"
 	shadow.Size               = UDim2.new(1, 40, 1, 40)
 	shadow.Position           = UDim2.new(0, -20, 0, -10)
 	shadow.BackgroundTransparency = 1
 	shadow.Image              = "rbxassetid://6015897843"
-	shadow.ImageColor3        = Color3.fromRGB(0,0,0)
+	shadow.ImageColor3        = Color3.fromRGB(0, 0, 0)
 	shadow.ImageTransparency  = 0.5
 	shadow.ScaleType          = Enum.ScaleType.Slice
 	shadow.SliceCenter        = Rect.new(49, 49, 450, 450)
 	shadow.ZIndex             = -1
 	shadow.Parent             = win
 
-	-- ── Title Bar ──────────────────────────────────────────────
+	-- Title Bar
 	local titleBar = Instance.new("Frame")
-	titleBar.Name             = "TitleBar"
-	titleBar.Size             = UDim2.new(1, 0, 0, 44)
+	titleBar.Name            = "TitleBar"
+	titleBar.Size            = UDim2.new(1, 0, 0, 44)
 	titleBar.BackgroundColor3 = THEME.Surface
-	titleBar.BorderSizePixel  = 0
-	titleBar.Parent           = win
+	titleBar.BorderSizePixel = 0
+	titleBar.Parent          = win
 	makeCorner(titleBar, 12)
 
-	-- fix bottom corners of title bar
 	local titleFill = Instance.new("Frame")
-	titleFill.Size               = UDim2.new(1, 0, 0.5, 0)
-	titleFill.Position           = UDim2.new(0, 0, 0.5, 0)
-	titleFill.BackgroundColor3   = THEME.Surface
-	titleFill.BorderSizePixel    = 0
-	titleFill.Parent             = titleBar
+	titleFill.Size             = UDim2.new(1, 0, 0.5, 0)
+	titleFill.Position         = UDim2.new(0, 0, 0.5, 0)
+	titleFill.BackgroundColor3 = THEME.Surface
+	titleFill.BorderSizePixel  = 0
+	titleFill.Parent           = titleBar
 
 	local titleDivider = Instance.new("Frame")
-	titleDivider.Name            = "Divider"
-	titleDivider.Size            = UDim2.new(1, 0, 0, 1)
-	titleDivider.Position        = UDim2.new(0, 0, 1, 0)
+	titleDivider.Size             = UDim2.new(1, 0, 0, 1)
+	titleDivider.Position         = UDim2.new(0, 0, 1, 0)
 	titleDivider.BackgroundColor3 = THEME.Border
-	titleDivider.BorderSizePixel = 0
-	titleDivider.Parent          = titleBar
+	titleDivider.BorderSizePixel  = 0
+	titleDivider.Parent           = titleBar
 
-	-- Icon dot
 	local iconDot = Instance.new("Frame")
-	iconDot.Size              = UDim2.new(0, 8, 0, 8)
-	iconDot.Position          = UDim2.new(0, 14, 0.5, -4)
-	iconDot.BackgroundColor3  = THEME.Accent
-	iconDot.BorderSizePixel   = 0
-	iconDot.Parent            = titleBar
+	iconDot.Size             = UDim2.new(0, 8, 0, 8)
+	iconDot.Position         = UDim2.new(0, 14, 0.5, -4)
+	iconDot.BackgroundColor3 = THEME.Accent
+	iconDot.BorderSizePixel  = 0
+	iconDot.Parent           = titleBar
 	makeCorner(iconDot, 99)
 
-	-- pulse the dot
-	local function pulseDot()
-		tween(iconDot, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
-			{ BackgroundColor3 = THEME.AccentDim })
-	end
-	pulseDot()
+	tween(iconDot,
+		TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+		{ BackgroundColor3 = THEME.AccentDim }
+	)
 
 	local titleLabel = makeLabel(titleBar, "Autonomous", 14, THEME.TextPrimary, Enum.TextXAlignment.Left)
-	titleLabel.Position     = UDim2.new(0, 30, 0, 0)
-	titleLabel.Size         = UDim2.new(1, -90, 1, 0)
-	titleLabel.Font         = Enum.Font.GothamBold
-	titleLabel.TextSize     = 14
+	titleLabel.Position  = UDim2.new(0, 30, 0, 0)
+	titleLabel.Size      = UDim2.new(1, -90, 1, 0)
+	titleLabel.Font      = Enum.Font.GothamBold
+	titleLabel.TextSize  = 14
 
-	local versionLabel = makeLabel(titleBar, "v"..self._version, 10, THEME.TextMuted, Enum.TextXAlignment.Left)
-	versionLabel.Position = UDim2.new(0, 30, 0, 0)
-	versionLabel.Size     = UDim2.new(1, -90, 1, 0)
-	versionLabel.TextXAlignment = Enum.TextXAlignment.Right
-	versionLabel.Position       = UDim2.new(0, 0, 0, 0)
-	makePadding(versionLabel, 0, 60, 0, 0)
+	local versionLabel = makeLabel(titleBar, "v" .. self._version, 10, THEME.TextMuted, Enum.TextXAlignment.Right)
+	versionLabel.Size     = UDim2.new(1, 0, 1, 0)
+	versionLabel.Position = UDim2.new(0, 0, 0, 0)
+	makePadding(versionLabel, 0, 10, 0, 0)
 
-	-- Close button
 	local closeBtnHolder = Instance.new("Frame")
 	closeBtnHolder.Size             = UDim2.new(0, 28, 0, 28)
 	closeBtnHolder.Position         = UDim2.new(1, -38, 0.5, -14)
@@ -259,13 +232,13 @@ function AutonomousUI.new(config)
 	makeCorner(closeBtnHolder, 6)
 	makeStroke(closeBtnHolder, THEME.Border, 1)
 
-	local closeBtn = makeButton(closeBtnHolder, "✕", 12)
+	local closeBtn = makeButton(closeBtnHolder, "x", 12)
 	closeBtn.TextColor3 = THEME.TextSecondary
 	self._closeBtn = closeBtn
 
 	enableDrag(titleBar, win)
 
-	-- ── Tab Bar ────────────────────────────────────────────────
+	-- Tab Bar
 	local tabBar = Instance.new("Frame")
 	tabBar.Name             = "TabBar"
 	tabBar.Size             = UDim2.new(1, 0, 0, 36)
@@ -275,34 +248,34 @@ function AutonomousUI.new(config)
 	tabBar.Parent           = win
 
 	local tabBarDivider = Instance.new("Frame")
-	tabBarDivider.Size            = UDim2.new(1, 0, 0, 1)
-	tabBarDivider.Position        = UDim2.new(0, 0, 1, 0)
+	tabBarDivider.Size             = UDim2.new(1, 0, 0, 1)
+	tabBarDivider.Position         = UDim2.new(0, 0, 1, 0)
 	tabBarDivider.BackgroundColor3 = THEME.Border
-	tabBarDivider.BorderSizePixel = 0
-	tabBarDivider.Parent          = tabBar
+	tabBarDivider.BorderSizePixel  = 0
+	tabBarDivider.Parent           = tabBar
 
 	local tabLayout = Instance.new("UIListLayout")
-	tabLayout.FillDirection  = Enum.FillDirection.Horizontal
-	tabLayout.SortOrder      = Enum.SortOrder.LayoutOrder
-	tabLayout.Parent         = tabBar
+	tabLayout.FillDirection = Enum.FillDirection.Horizontal
+	tabLayout.SortOrder     = Enum.SortOrder.LayoutOrder
+	tabLayout.Parent        = tabBar
 
 	self._tabs      = {}
 	self._tabFrames = {}
 
-	-- ── Content Area ───────────────────────────────────────────
+	-- Content Area
 	local contentArea = Instance.new("Frame")
-	contentArea.Name             = "ContentArea"
-	contentArea.Size             = UDim2.new(1, 0, 1, -80)
-	contentArea.Position         = UDim2.new(0, 0, 0, 80)
+	contentArea.Name                  = "ContentArea"
+	contentArea.Size                  = UDim2.new(1, 0, 1, -80)
+	contentArea.Position              = UDim2.new(0, 0, 0, 80)
 	contentArea.BackgroundTransparency = 1
-	contentArea.ClipsDescendants = true
-	contentArea.Parent           = win
+	contentArea.ClipsDescendants      = true
+	contentArea.Parent                = win
 	self._contentArea = contentArea
 
-	-- ── Reopen Button (shown when closed) ──────────────────────
+	-- Reopen Button
 	local reopenBtn = Instance.new("Frame")
 	reopenBtn.Name             = "ReopenBtn"
-	reopenBtn.Size             = UDim2.new(0, 130, 0, 36)
+	reopenBtn.Size             = UDim2.new(0, 140, 0, 36)
 	reopenBtn.Position         = UDim2.new(0, 16, 1, -56)
 	reopenBtn.BackgroundColor3 = THEME.Surface
 	reopenBtn.BorderSizePixel  = 0
@@ -320,64 +293,61 @@ function AutonomousUI.new(config)
 	reopenDot.Parent           = reopenBtn
 	makeCorner(reopenDot, 99)
 
-	local reopenLabel = makeButton(reopenBtn, "▲  Autonomous", 12)
-	reopenLabel.TextColor3      = THEME.TextPrimary
-	reopenLabel.TextXAlignment  = Enum.TextXAlignment.Center
+	local reopenLabel = makeButton(reopenBtn, "^ Autonomous", 12)
+	reopenLabel.TextColor3     = THEME.TextPrimary
+	reopenLabel.TextXAlignment = Enum.TextXAlignment.Center
 	self._reopenBtn = reopenBtn
 
-	-- ── Build Tabs ─────────────────────────────────────────────
+	-- Build Tabs
 	local tabNames = {"Chat", "Logs"}
 
 	for i, name in ipairs(tabNames) do
-		-- Tab button
 		local tabHolder = Instance.new("Frame")
-		tabHolder.Size             = UDim2.new(0, 80, 1, 0)
+		tabHolder.Size                  = UDim2.new(0, 80, 1, 0)
 		tabHolder.BackgroundTransparency = 1
-		tabHolder.LayoutOrder      = i
-		tabHolder.Parent           = tabBar
+		tabHolder.LayoutOrder           = i
+		tabHolder.Parent                = tabBar
 
 		local tabIndicator = Instance.new("Frame")
-		tabIndicator.Size             = UDim2.new(0.7, 0, 0, 2)
-		tabIndicator.Position         = UDim2.new(0.15, 0, 1, -1)
-		tabIndicator.BackgroundColor3 = THEME.Accent
-		tabIndicator.BorderSizePixel  = 0
-		tabIndicator.BackgroundTransparency = 1
-		tabIndicator.Parent           = tabHolder
+		tabIndicator.Size                     = UDim2.new(0.7, 0, 0, 2)
+		tabIndicator.Position                 = UDim2.new(0.15, 0, 1, -1)
+		tabIndicator.BackgroundColor3         = THEME.Accent
+		tabIndicator.BorderSizePixel          = 0
+		tabIndicator.BackgroundTransparency   = (name == "Chat") and 0 or 1
+		tabIndicator.Parent                   = tabHolder
 		makeCorner(tabIndicator, 2)
 
 		local tabBtn = makeButton(tabHolder, name, 12)
 		tabBtn.TextColor3 = (name == "Chat") and THEME.TextPrimary or THEME.TextSecondary
-		tabBtn.Font = (name == "Chat") and Enum.Font.GothamBold or Enum.Font.Gotham
+		tabBtn.Font       = (name == "Chat") and Enum.Font.GothamBold or Enum.Font.Gotham
 
-		-- Tab content frame
 		local tabFrame = Instance.new("ScrollingFrame")
-		tabFrame.Name                  = name
-		tabFrame.Size                  = UDim2.new(1, 0, 1, 0)
+		tabFrame.Name                 = name
+		tabFrame.Size                 = UDim2.new(1, 0, 1, 0)
 		tabFrame.BackgroundTransparency = 1
-		tabFrame.BorderSizePixel       = 0
-		tabFrame.ScrollBarThickness    = 3
-		tabFrame.ScrollBarImageColor3  = THEME.Border
-		tabFrame.CanvasSize            = UDim2.new(0, 0, 0, 0)
-		tabFrame.AutomaticCanvasSize   = Enum.AutomaticSize.Y
-		tabFrame.Visible               = (name == "Chat")
-		tabFrame.Parent                = contentArea
+		tabFrame.BorderSizePixel      = 0
+		tabFrame.ScrollBarThickness   = 3
+		tabFrame.ScrollBarImageColor3 = THEME.Border
+		tabFrame.CanvasSize           = UDim2.new(0, 0, 0, 0)
+		tabFrame.AutomaticCanvasSize  = Enum.AutomaticSize.Y
+		tabFrame.Visible              = (name == "Chat")
+		tabFrame.Parent               = contentArea
 
 		local listLayout = Instance.new("UIListLayout")
-		listLayout.SortOrder    = Enum.SortOrder.LayoutOrder
-		listLayout.Padding      = UDim.new(0, 4)
-		listLayout.Parent       = tabFrame
+		listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		listLayout.Padding   = UDim.new(0, 4)
+		listLayout.Parent    = tabFrame
 		makePadding(tabFrame, 10, 10, 10, 10)
 
 		self._tabs[name]      = { btn = tabBtn, indicator = tabIndicator, holder = tabHolder }
 		self._tabFrames[name] = tabFrame
 
-		-- Tab switch logic
 		tabBtn.MouseButton1Click:Connect(function()
 			self:_switchTab(name)
 		end)
 	end
 
-	-- ── Input Bar (Chat tab only) ───────────────────────────────
+	-- Input Bar
 	local inputBar = Instance.new("Frame")
 	inputBar.Name             = "InputBar"
 	inputBar.Size             = UDim2.new(1, -16, 0, 38)
@@ -389,17 +359,17 @@ function AutonomousUI.new(config)
 	makeStroke(inputBar, THEME.Border, 1)
 
 	local inputBox = Instance.new("TextBox")
-	inputBox.Size                = UDim2.new(1, -50, 1, 0)
+	inputBox.Size                 = UDim2.new(1, -50, 1, 0)
 	inputBox.BackgroundTransparency = 1
-	inputBox.Font                = Enum.Font.Gotham
-	inputBox.TextSize            = 12
-	inputBox.TextColor3          = THEME.TextPrimary
-	inputBox.PlaceholderColor3   = THEME.TextMuted
-	inputBox.PlaceholderText     = "Message Autonomous…"
-	inputBox.TextXAlignment      = Enum.TextXAlignment.Left
-	inputBox.ClearTextOnFocus    = false
-	inputBox.Text                = ""
-	inputBox.Parent              = inputBar
+	inputBox.Font                 = Enum.Font.Gotham
+	inputBox.TextSize             = 12
+	inputBox.TextColor3           = THEME.TextPrimary
+	inputBox.PlaceholderColor3    = THEME.TextMuted
+	inputBox.PlaceholderText      = "Message Autonomous..."
+	inputBox.TextXAlignment       = Enum.TextXAlignment.Left
+	inputBox.ClearTextOnFocus     = false
+	inputBox.Text                 = ""
+	inputBox.Parent               = inputBar
 	makePadding(inputBox, 0, 0, 0, 10)
 	self._inputBox = inputBox
 
@@ -411,11 +381,11 @@ function AutonomousUI.new(config)
 	sendBtnHolder.Parent           = inputBar
 	makeCorner(sendBtnHolder, 6)
 
-	local sendBtn = makeButton(sendBtnHolder, "↑", 14)
+	local sendBtn = makeButton(sendBtnHolder, "^", 14)
 	sendBtn.TextColor3 = THEME.TextPrimary
 	self._sendBtn = sendBtn
 
-	-- ── Wire up Close / Reopen ─────────────────────────────────
+	-- Wire Close / Reopen
 	closeBtn.MouseButton1Click:Connect(function()
 		self:close()
 	end)
@@ -424,7 +394,6 @@ function AutonomousUI.new(config)
 		self:open()
 	end)
 
-	-- hover effects
 	local function addHover(btn, holder, hoverColor, normalColor)
 		btn.MouseEnter:Connect(function()
 			tween(holder, TWEEN_FAST, { BackgroundColor3 = hoverColor })
@@ -433,10 +402,9 @@ function AutonomousUI.new(config)
 			tween(holder, TWEEN_FAST, { BackgroundColor3 = normalColor })
 		end)
 	end
-	addHover(closeBtn, closeBtnHolder, Color3.fromRGB(200,60,60), THEME.SurfaceLight)
-	addHover(sendBtn, sendBtnHolder, Color3.fromRGB(130,130,220), THEME.Accent)
+	addHover(closeBtn, closeBtnHolder, Color3.fromRGB(200, 60, 60), THEME.SurfaceLight)
+	addHover(sendBtn, sendBtnHolder, Color3.fromRGB(130, 130, 220), THEME.Accent)
 
-	-- send on Enter
 	inputBox.FocusLost:Connect(function(enter)
 		if enter then self:_sendMessage() end
 	end)
@@ -444,8 +412,7 @@ function AutonomousUI.new(config)
 		self:_sendMessage()
 	end)
 
-	-- initial log
-	self:log("System", "Autonomous UI initialised — v"..self._version, "info")
+	self:log("System", "Autonomous UI initialised -- v" .. self._version, "info")
 
 	return self
 end
@@ -459,27 +426,16 @@ function AutonomousUI:_switchTab(name)
 
 	for tName, data in pairs(self._tabs) do
 		local active = (tName == name)
-		local frame  = self._tabFrames[tName]
-
-		tween(data.indicator, TWEEN_MED, {
-			BackgroundTransparency = active and 0 or 1
-		})
-		tween(data.btn, TWEEN_FAST, {
-			TextColor3 = active and THEME.TextPrimary or THEME.TextSecondary
-		})
+		tween(data.indicator, TWEEN_MED, { BackgroundTransparency = active and 0 or 1 })
+		tween(data.btn, TWEEN_FAST, { TextColor3 = active and THEME.TextPrimary or THEME.TextSecondary })
 		data.btn.Font = active and Enum.Font.GothamBold or Enum.Font.Gotham
-		frame.Visible = active
+		self._tabFrames[tName].Visible = active
 	end
 end
 
 -- ─────────────────────────────────────────────────────────────
--- Message Bubble Factory
+-- Bubble Builder
 -- ─────────────────────────────────────────────────────────────
-local function wrapText(text, maxWidth)
-	-- Roblox handles wrapping via TextWrapped; just return text
-	return text
-end
-
 function AutonomousUI:_buildBubble(parent, role, text, order)
 	local isUser = (role == "You")
 
@@ -491,48 +447,45 @@ function AutonomousUI:_buildBubble(parent, role, text, order)
 	row.Parent                = parent
 
 	local bubble = Instance.new("Frame")
-	bubble.AutomaticSize      = Enum.AutomaticSize.Y
-	bubble.Size               = UDim2.new(0.82, 0, 0, 0)
-	bubble.Position           = isUser
-		and UDim2.new(0.18, 0, 0, 0)
-		or  UDim2.new(0, 0, 0, 0)
-	bubble.BackgroundColor3   = isUser and THEME.Accent or THEME.SurfaceLight
-	bubble.BorderSizePixel    = 0
-	bubble.Parent             = row
+	bubble.AutomaticSize    = Enum.AutomaticSize.Y
+	bubble.Size             = UDim2.new(0.82, 0, 0, 0)
+	bubble.Position         = isUser and UDim2.new(0.18, 0, 0, 0) or UDim2.new(0, 0, 0, 0)
+	bubble.BackgroundColor3 = isUser and THEME.Accent or THEME.SurfaceLight
+	bubble.BorderSizePixel  = 0
+	bubble.Parent           = row
 	makeCorner(bubble, 10)
 	makePadding(bubble, 8, 10, 8, 10)
 
 	if not isUser then
 		makeStroke(bubble, THEME.Border, 1, 0.5)
 		local nameTag = makeLabel(bubble, "Autonomous", 10, THEME.Accent, Enum.TextXAlignment.Left)
-		nameTag.Font  = Enum.Font.GothamBold
-		nameTag.Size  = UDim2.new(1, 0, 0, 14)
+		nameTag.Font        = Enum.Font.GothamBold
+		nameTag.Size        = UDim2.new(1, 0, 0, 14)
 		nameTag.LayoutOrder = 0
 	end
 
 	local msgLabel = Instance.new("TextLabel")
-	msgLabel.Text              = wrapText(text, 260)
+	msgLabel.Text              = text
 	msgLabel.TextSize          = 12
-	msgLabel.TextColor3        = isUser and Color3.fromRGB(255,255,255) or THEME.TextPrimary
+	msgLabel.TextColor3        = isUser and Color3.fromRGB(255, 255, 255) or THEME.TextPrimary
 	msgLabel.Font              = Enum.Font.Gotham
 	msgLabel.TextWrapped       = true
 	msgLabel.TextXAlignment    = Enum.TextXAlignment.Left
 	msgLabel.BackgroundTransparency = 1
-	msgLabel.AutomaticSize     = Enum.AutomaticSize.Y
-	msgLabel.Size              = UDim2.new(1, 0, 0, 0)
-	msgLabel.LayoutOrder       = 1
-	msgLabel.Parent            = bubble
+	msgLabel.AutomaticSize    = Enum.AutomaticSize.Y
+	msgLabel.Size             = UDim2.new(1, 0, 0, 0)
+	msgLabel.LayoutOrder      = 1
+	msgLabel.Parent           = bubble
 
 	local bubbleLayout = Instance.new("UIListLayout")
 	bubbleLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	bubbleLayout.Padding   = UDim.new(0, 4)
 	bubbleLayout.Parent    = bubble
 
-	-- fade in
 	bubble.BackgroundTransparency = 1
 	msgLabel.TextTransparency     = 1
-	tween(bubble, TWEEN_MED, { BackgroundTransparency = isUser and 0 or 0 })
-	tween(msgLabel, TWEEN_MED, { TextTransparency = 0 })
+	tween(bubble,    TWEEN_MED, { BackgroundTransparency = 0 })
+	tween(msgLabel,  TWEEN_MED, { TextTransparency = 0 })
 
 	return row
 end
@@ -552,22 +505,21 @@ function AutonomousUI:_sendMessage()
 	self:_buildBubble(chatFrame, "You", text, order)
 	self:log("Chat", "You: " .. text, "info")
 
-	-- fire callback
 	if self.onMessage then
 		local ok, err = pcall(self.onMessage, self, text)
 		if not ok then
 			self:log("Error", tostring(err), "error")
 		end
 	else
-		-- default echo reply
+		-- ✅ Fixed: plain ASCII quotes only
 		task.delay(0.6, function()
-			self:reply("I received: "" .. text .. """)
+			self:reply('I received: "' .. text .. '"')
 		end)
 	end
 end
 
 -- ─────────────────────────────────────────────────────────────
--- Public: Send a reply from Autonomous
+-- Reply
 -- ─────────────────────────────────────────────────────────────
 function AutonomousUI:reply(text)
 	local chatFrame = self._tabFrames["Chat"]
@@ -576,7 +528,6 @@ function AutonomousUI:reply(text)
 	self:_buildBubble(chatFrame, "Autonomous", text, order)
 	self:log("Chat", "Autonomous: " .. text, "info")
 
-	-- scroll to bottom
 	task.defer(function()
 		chatFrame.CanvasPosition = Vector2.new(0, chatFrame.AbsoluteCanvasSize.Y)
 	end)
@@ -616,8 +567,8 @@ function AutonomousUI:log(tag, message, level)
 	rowLayout.Padding   = UDim.new(0, 2)
 	rowLayout.Parent    = row
 
-	local tagLabel = makeLabel(row, "["..tag:upper().."]", 10, color, Enum.TextXAlignment.Left)
-	tagLabel.Font       = Enum.Font.GothamBold
+	local tagLabel = makeLabel(row, "[" .. tag:upper() .. "]", 10, color, Enum.TextXAlignment.Left)
+	tagLabel.Font        = Enum.Font.GothamBold
 	tagLabel.LayoutOrder = 0
 
 	local msgLabel = Instance.new("TextLabel")
@@ -633,12 +584,10 @@ function AutonomousUI:log(tag, message, level)
 	msgLabel.LayoutOrder       = 1
 	msgLabel.Parent            = row
 
-	-- timestamp
 	local ts = os.date("%H:%M:%S")
 	local tsLabel = makeLabel(row, ts, 9, THEME.TextMuted, Enum.TextXAlignment.Right)
 	tsLabel.LayoutOrder = 2
 
-	-- scroll logs to bottom
 	task.defer(function()
 		logsFrame.CanvasPosition = Vector2.new(0, logsFrame.AbsoluteCanvasSize.Y)
 	end)
@@ -652,19 +601,18 @@ function AutonomousUI:close()
 	self._isOpen = false
 	tween(self._window, TWEEN_MED, { Size = UDim2.new(0, 340, 0, 0) })
 	task.delay(0.25, function()
-		self._window.Visible     = false
-		self._reopenBtn.Visible  = true
-		tween(self._reopenBtn, TWEEN_MED, { BackgroundTransparency = 0 })
+		self._window.Visible    = false
+		self._reopenBtn.Visible = true
 	end)
 	self:log("System", "UI closed", "system")
 end
 
 function AutonomousUI:open()
 	if self._isOpen then return end
-	self._isOpen             = true
-	self._window.Visible     = true
-	self._window.Size        = UDim2.new(0, 340, 0, 0)
-	self._reopenBtn.Visible  = false
+	self._isOpen            = true
+	self._window.Visible    = true
+	self._window.Size       = UDim2.new(0, 340, 0, 0)
+	self._reopenBtn.Visible = false
 	tween(self._window, TWEEN_MED, { Size = UDim2.new(0, 340, 0, 480) })
 	self:log("System", "UI opened", "system")
 end
@@ -673,7 +621,7 @@ end
 -- Destroy
 -- ─────────────────────────────────────────────────────────────
 function AutonomousUI:destroy()
-	self:log("System", "Destroying UI…", "warning")
+	self:log("System", "Destroying UI...", "warning")
 	task.delay(0.3, function()
 		self._screenGui:Destroy()
 	end)
@@ -686,7 +634,4 @@ function AutonomousUI:getLogs()    return self._logs    end
 function AutonomousUI:getHistory() return self._messages end
 function AutonomousUI:isOpen()     return self._isOpen  end
 
--- ─────────────────────────────────────────────────────────────
--- Return library
--- ─────────────────────────────────────────────────────────────
 return AutonomousUI
